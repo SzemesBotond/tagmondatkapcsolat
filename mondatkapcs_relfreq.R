@@ -116,7 +116,7 @@ for (i in 1:length(token_sent2)) {
   vonmin [[i]] <- gsub("(^| )a melyik", " amelyik", vonmin[[i]], ignore.case =  T)
   vonmin [[i]] <- str_remove_all(vonmin [[i]], "( mint (aki|ami|ki))|( melyik)")
   vonmin [[i]] <- gsub(paste(ment_ig,"([a-zíéáűúőóüö ]+|)([a-zíéáűúőóüö ]+|)(\\, )(mi|mely)", sep=""), "\\1\\2\\3\\4", vonmin [[i]])
-  vonmin [[i]] <- gsub(paste(ment_ig, "([a-zíéáűúőóüö ]+|)(\\, )(ki)", sep=""), "\\1\\2\\3", vonmin [[i]],ignore.case = T)
+  vonmin [[i]] <- gsub(paste(ment_ig, "([a-zíéáűúőóüö]+|)(\\, )(ki)", sep=""), "\\1\\2\\3", vonmin [[i]],ignore.case = T)
   idomin [[i]] <- gsub(paste(ment_ig2,"([a-zíéáűúőóüö]+|)(\\, )(mikor|mióta)", sep=""),"\\1\\2\\3", token_sent2 [[i]], ignore.case = T)
   idomin [[i]] <- gsub("(\\, hogy)([a-zíűáéúőóüö ]+|) (mikor|mi kor|mióta|mi óta )", "\\1\\2 ", idomin[[i]],ignore.case = T)
   idomin [[i]] <- str_remove_all(idomin[[i]], " mint (amikor|amióta |mióta |amidőn |midőn |mikor|mi kor)")
