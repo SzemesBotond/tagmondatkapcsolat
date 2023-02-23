@@ -15,33 +15,28 @@ my.corpus.l <- make.file.l(files.v, input.dir)
 #korpusz elokeszitese: nem listazni; oldalszamok kivetel, 
 #gondolatjel utani nagybetu, rovidites, idezojel,
 #zarojelen beluli irasjel
-regenyek <- c()
-for (i in 1:length(my.corpus.l)) {
-  regenyek[[i]] <- unlist(my.corpus.l[[i]], recursive = TRUE, use.names = TRUE)
-  regenyek [[i]] <- gsub("([0-9]+)([A-zöüóőúéáűí])", "\\2", regenyek[[i]])
-  regenyek [[i]] <- gsub("(– )([A-ZÖÜÓŐÚÉÁŰÍ])", "\\2", regenyek[[i]])
-  regenyek [[i]] <- gsub("(- )([A-ZÖÜÓŐÚÉÁŰÍ])", "\\2", regenyek[[i]])
-  regenyek [[i]] <- gsub("(\\.\\.\\.)( [A-ZÖÜÓŐÚÉÁŰÍ])", "\\.\\2", regenyek[[i]])
-  regenyek [[i]] <- gsub("([A-zzöüóőúéáűí])(-)", "\\1", regenyek[[i]])
-  regenyek [[i]] <- gsub("([[:punct:]])([A-zzöüóőúéáűí])", "\\2", regenyek[[i]])
-  regenyek [[i]] <- gsub("Dr\\. ", "Dr ", regenyek[[i]], ignore.case = TRUE)
-  regenyek [[i]] <- gsub("stb\\. ", "stb ", regenyek[[i]])
-  regenyek [[i]] <- gsub("Özv\\. ", "Özv ", regenyek[[i]], ignore.case = TRUE)
-  regenyek [[i]] <- gsub("ifj\\. ", "ifj ", regenyek[[i]])
-  regenyek [[i]] <- gsub("ún\\. ", "ún ", regenyek[[i]])
-  regenyek [[i]] <- gsub("St\\. ", "st ", regenyek[[i]])
-  regenyek [[i]] <- gsub("( [A-zzöüóőúéáűí])(\\.)", "\\1", regenyek[[i]])
-  regenyek [[i]] <- gsub("([.?!])( [a-zöüóőúéáűí])", "\\2", regenyek[[i]])
-  regenyek [[i]] <- gsub("([.?!])( [a-zöüóőúéáűí])", "\\2", regenyek[[i]])
-  regenyek [[i]] <- gsub("([.?!])([\\)] [a-zöüóőúéáűí])", "\\2", regenyek[[i]])
-}
+regenyek <- sapply(my.corpus.l, unlist,recursive = TRUE, use.names = TRUE)
+regenyek <-  sapply(regenyek,function(x) gsub("([0-9]+)([A-zöüóőúéáűí])", "\\2",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("(– )([A-ZÖÜÓŐÚÉÁŰÍ])", "\\2",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("(- )([A-ZÖÜÓŐÚÉÁŰÍ])", "\\2",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("(\\.\\.\\.)( [A-ZÖÜÓŐÚÉÁŰÍ])", "\\.\\2",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("([A-zzöüóőúéáűí])(-)", "\\1",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("([[:punct:]])([A-zzöüóőúéáűí])", "\\2",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("Dr\\. ", "Dr ",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("stb\\. ", "stb ",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("Özv\\. ", "Özv ",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("ifj\\. ", "ifj ",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("ún\\. ", "ún ",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("St\\. ", "st ",as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("( [A-zzöüóőúéáűí])(\\.)", "\\1", as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("([.?!])( [a-zöüóőúéáűí])", "\\2", as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("([.?!])( [a-zöüóőúéáűí])", "\\2", as.character(x)))
+regenyek <-  sapply(regenyek,function(x) gsub("([.?!])([\\)] [a-zöüóőúéáűí])", "\\2", as.character(x)))
+
 #tokenizer csomag - mondatokra, szavakra, beture szegentalas - a token_sent2 lesz, amin a kapcsolatokat vizsgáljuk
 library(tokenizers)
 token_sent <- sapply(regenyek, tokenize_sentences)
-token_sent2 <- list ()
-for (i in 1:length(token_sent)) {
-  token_sent2[[i]] <- unlist(token_sent[[i]], recursive = TRUE, use.names = TRUE)
-}  
+token_sent2 <- sapply(token_sent, unlist, recursive = TRUE, use.names = TRUE)
 sentence_words <- sapply(token_sent2, tokenize_words)
 
 # fejezet es fejezet-szam kivetele
@@ -57,11 +52,9 @@ for (i in 1:length(sw)) {
   sentence_length [[i]] <- sapply(sw[[i]], length)
   sentence_length [[i]] <- sentence_length[[i]][which(sentence_length[[i]] !=0)]
 }
-#szavak szama - ez lesz az osztó a relatív gyakoriság kiszámolásakor
-szavak_szama <- list()
-for (i in 1:length(sentence_length)) {
-  szavak_szama [[i]] <- sum (sentence_length[[i]])
-}
+#szavak szama
+szavak_szama <- lapply(sentence_length, sum)
+
 
 #MONDATKAPCSOLATok
 # az összes regexet tartalmazó valtozó, kivéve azok, amelyek nem a mondatokra botott szövegre ("token_sent2" változó) vonatkoznak
@@ -106,23 +99,17 @@ for (i in 1:length(kapcsolatok)) {
 ment_ig <- "((^| )(elárul|eldönt|elképzel|ért|érdekel|érdekl|tud|kérde|kérdi|megkérd|képzel|kitalál|megállapít|megért|megmutat|sejt))|(ni akar)"
 ment_ig2 <- "(ni akar)|((^| )(elárul|eldönt|elképzel|érdekel|érdekl|tud|kérde|kérdi|megkréd|képzel|kitalál|megállapít|megért|megmutat|sejt))"
 library(stringr)
-vonmin <- list ()
-idomin <- list()
-hasmin <- list()
-helymin <- list ()
-for (i in 1:length(token_sent2)) {
-  hasmin[[i]] <- str_remove_all(token_sent2[[i]], "((akár|Akár) (.*?)akár )|( a mint | nem mint )")
-  vonmin [[i]] <- str_remove_all(token_sent2[[i]], "amint|(A|a)mikor|amiként|amiképp|amiatt|amidőn|amióta|amialatt|amielőtt|amiután|amíg ")
-  vonmin [[i]] <- gsub("(^| )a melyik", " amelyik", vonmin[[i]], ignore.case =  T)
-  vonmin [[i]] <- str_remove_all(vonmin [[i]], "( mint (aki|ami|ki))|( melyik)")
-  vonmin [[i]] <- gsub(paste(ment_ig,"([a-zíéáűúőóüö ]+|)([a-zíéáűúőóüö ]+|)(\\, )(mi|mely)", sep=""), "\\1\\2\\3\\4", vonmin [[i]])
-  vonmin [[i]] <- gsub(paste(ment_ig, "([a-zíéáűúőóüö]+|)(\\, )(ki)", sep=""), "\\1\\2\\3", vonmin [[i]],ignore.case = T)
-  idomin [[i]] <- gsub(paste(ment_ig2,"([a-zíéáűúőóüö]+|)(\\, )(mikor|mióta)", sep=""),"\\1\\2\\3", token_sent2 [[i]], ignore.case = T)
-  idomin [[i]] <- gsub("(\\, hogy)([a-zíűáéúőóüö ]+|) (mikor|mi kor|mióta|mi óta )", "\\1\\2 ", idomin[[i]],ignore.case = T)
-  idomin [[i]] <- str_remove_all(idomin[[i]], " mint (amikor|amióta |mióta |amidőn |midőn |mikor|mi kor)")
-  helymin [[i]] <- gsub(paste(ment_ig2,"([a-zíéáűúőóüö]+|)(\\, )(hol |hon|hov|merr|meddig)", sep=""),"\\1\\2\\3", token_sent2[[i]], ignore.case = T)
-  helymin [[i]] <- gsub("(\\, hogy)([a-zíűáéúőóüö ]+|) (hol |honnan |hová |hova)", "\\1\\2 ", helymin[[i]], ignore.case = T)
-}
+hasmin <- lapply(token_sent2, str_remove_all,"((akár|Akár) (.*?)akár )|( a mint | nem mint )")
+vonmin <- lapply(token_sent2, str_remove_all, "amint|(A|a)mikor|amiként|amiképp|amiatt|amidőn|amióta|amialatt|amielőtt|amiután|amíg ")
+vonmin <- lapply(vonmin, function(x) gsub("(^| )a melyik", " amelyik", ignore.case=T, as.character(x)))
+vonmin <- lapply(vonmin, str_remove_all, "( mint (aki|ami|ki))|( melyik)")
+vonmin <- lapply(vonmin, function(x) gsub(paste(ment_ig,"([a-zíéáűúőóüö ]+|)(\\, )(mi|mely)", sep=""), "\\1\\2\\3\\4", ignore.case=T, as.character(x)))
+vonmin <- lapply(vonmin, function(x) gsub(paste(ment_ig, "([a-zíéáűúőóüö]+|)(\\, )(ki)", sep=""), "\\1\\2\\3", as.character(x)))
+idomin <- lapply(token_sent2, function(x) gsub(paste(ment_ig2,"([a-zíéáűúőóüö]+|)(\\, )(mikor|mióta)", sep=""),"\\1\\2\\3", ignore.case=T, as.character(x)))
+idomin <- lapply(token_sent2, function(x) gsub("(\\, hogy)([a-zíűáéúőóüö ]+|) (mikor|mi kor|mióta|mi óta )", "\\1\\2 ", ignore.case=T, as.character(x)))
+idomin  <- lapply(idomin, str_remove_all, " mint (amikor|amióta |mióta |amidőn |midőn |mikor|mi kor)")
+helymin <- lapply(token_sent2, function(x) gsub(paste(ment_ig2,"([a-zíéáűúőóüö]+|)(\\, )(hol |hon|hov|merr|meddig)", sep=""),"\\1\\2\\3", ignore.case=T, as.character(x)))
+helymin <- lapply(token_sent2, function(x) gsub("(\\, hogy)([a-zíűáéúőóüö ]+|) (hol |honnan |hová |hova)", "\\1\\2 ", ignore.case=T, as.character(x)))
 
 #hasonlító, helyhatározói, időhatározói és vonatkozói kapcsolatok száma
 has <- kotoszavak_aranya(hasonlito, hasmin)
