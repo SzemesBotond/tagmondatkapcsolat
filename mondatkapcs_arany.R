@@ -33,25 +33,17 @@ osszetetel_db  <-  as.data.frame(matrix(unlist(osszetetel_db), nrow=length(unlis
 names <- c("Kapcsolatos", "Ellentetes","Választó","Magyarázó","Következtető","Megengedő","Ok/Célhatarozó","Feltételes","Hasonlító","Helyhatározó","Időbeli", "Vonatkozó")
 colnames(osszetetel_db) <- names
 library(stringr)
-for (i in 1:length(files.v)) {
-  files.v[[i]] <- str_remove_all(files.v[[i]], ".txt")
-  files.v[[i]] <- str_remove_all(files.v[[i]], ".*?\\_")
-}
+files.v <- sapply(files.v, str_remove_all, ".txt")
+files.v <- sapply(files.v, str_remove_all,  ".*?\\_")
+
 row.names(osszetetel_db) <- files.v
 # a dataframe oszlopainak és sorainak felcserélése
 ossz_db <- t(osszetetel_db) 
 #ellent+valaszt,magyarazo+kovetkezteto, hely+ido közös kategória, -kapcsolatos kiszedése
-magykov <- c()
-ellentval <- c()
-helyido <- c()
-for (i in 1:100) {
-  magykov[[i]] <-  sum(ossz_db[4,i], ossz_db[5,i])
-  ellentval[[i]] <-  sum(ossz_db[2,i], ossz_db[3,i])
-  helyido[[i]] <-  sum(ossz_db[10,i], ossz_db[11,i])
-} 
-magykov <- unlist(magykov)
-ellentval <- unlist(ellentval)
-helyido <- unlist(helyido)
+magykov <- unlist(lapply(ossz_db[4,]+ ossz_db[5,], sum))
+ellentval <- unlist(lapply(ossz_db[2,]+ ossz_db[3,], sum))
+helyido <-  unlist(lapply(ossz_db[10,]+ ossz_db[11,], sum)) 
+
 ossz_db<- rbind(ossz_db,magykov, ellentval, helyido)
 rownames(ossz_db)[rownames(ossz_db) == "magykov"] <- "Követ/Magyar"
 rownames(ossz_db)[rownames(ossz_db) == "ellentval"] <- "Ellent/Választ"
